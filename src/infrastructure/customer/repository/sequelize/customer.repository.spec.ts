@@ -1,8 +1,10 @@
-import { Sequelize } from "sequelize-typescript";
-import Customer from "../../../../domain/customer/entity/customer";
-import Address from "../../../../domain/customer/value-object/address";
-import CustomerModel from "./customer.model";
-import CustomerRepository from "./customer.repository";
+import {Sequelize} from "sequelize-typescript"
+import Customer from "../../../../domain/customer/entity/customer"
+import Address from "../../../../domain/customer/value-object/address"
+import CustomerModel from "./customer.model"
+import CustomerRepository from "./customer.repository"
+import EnviaConsoleLog2Handler from "../../../../domain/customer/event/handler/EnviaConsoleLog2Handler.handler"
+import EnviaConsoleLog1Handler from "../../../../domain/customer/event/handler/EnviaConsoleLog1Handler.handler"
 
 describe("Customer repository test", () => {
   let sequelize: Sequelize;
@@ -28,6 +30,9 @@ describe("Customer repository test", () => {
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
     customer.Address = address;
+    const spyEventHandler1 = jest.spyOn(EnviaConsoleLog1Handler.prototype, "handle");
+    const spyEventHandler2 = jest.spyOn(EnviaConsoleLog2Handler.prototype, "handle");
+
     await customerRepository.create(customer);
 
     const customerModel = await CustomerModel.findOne({ where: { id: "123" } });
@@ -42,6 +47,9 @@ describe("Customer repository test", () => {
       zipcode: address.zip,
       city: address.city,
     });
+
+    expect(spyEventHandler1).toHaveBeenCalled();
+    expect(spyEventHandler2).toHaveBeenCalled();
   });
 
   it("should update a customer", async () => {

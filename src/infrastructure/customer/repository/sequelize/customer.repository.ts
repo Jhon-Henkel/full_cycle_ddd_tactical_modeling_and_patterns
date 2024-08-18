@@ -2,6 +2,10 @@ import Customer from "../../../../domain/customer/entity/customer";
 import Address from "../../../../domain/customer/value-object/address";
 import CustomerRepositoryInterface from "../../../../domain/customer/repository/customer-repository.interface";
 import CustomerModel from "./customer.model";
+import EventDispatcher from "../../../../domain/@shared/event/event-dispatcher"
+import EnviaConsoleLog1Handler from "../../../../domain/customer/event/handler/EnviaConsoleLog1Handler.handler"
+import EnviaConsoleLog2Handler from "../../../../domain/customer/event/handler/EnviaConsoleLog2Handler.handler"
+import CustomerCreatedEvent from "../../../../domain/customer/event/customer-created.event"
 
 export default class CustomerRepository implements CustomerRepositoryInterface {
   async create(entity: Customer): Promise<void> {
@@ -15,6 +19,10 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
       active: entity.isActive(),
       rewardPoints: entity.rewardPoints,
     });
+    const eventDispatcher = new EventDispatcher()
+    eventDispatcher.register("CustomerCreatedEvent", new EnviaConsoleLog1Handler())
+    eventDispatcher.register("CustomerCreatedEvent", new EnviaConsoleLog2Handler())
+    eventDispatcher.notify(new CustomerCreatedEvent({}))
   }
 
   async update(entity: Customer): Promise<void> {
