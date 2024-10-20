@@ -6,7 +6,7 @@ describe('End to end test customer', () => {
         await sequelize.sync({ force: true })
     })
 
-    afterEach(async () => {
+    afterAll(async () => {
         await sequelize.close()
     })
 
@@ -38,5 +38,56 @@ describe('End to end test customer', () => {
         const response = await request(app).post('/customer').send({name: "John Doe"})
 
         expect(response.status).toBe(500)
+    })
+
+    it('should list all customers', async () => {
+        const response = await request(app).post('/customer').send({
+            name: "John Doe",
+            address: {
+                street: "123 Main St",
+                city: "Springfield",
+                number: 123,
+                zip: "62701"
+            }
+        })
+
+        const response2 = await request(app).post('/customer').send({
+            name: "Jane",
+            address: {
+                street: "456 Main St",
+                city: "Springfield",
+                number: 456,
+                zip: "62702"
+            }
+        })
+
+        expect(response.status).toBe(200)
+        expect(response2.status).toBe(200)
+
+        const listResponse = await request(app).get('/customer').send()
+
+        expect(listResponse.status).toBe(200)
+        expect(listResponse.body.customers).toEqual([
+            {
+                id: expect.any(String),
+                name: "John Doe",
+                address: {
+                    street: "123 Main St",
+                    city: "Springfield",
+                    number: 123,
+                    zip: "62701"
+                }
+            },
+            {
+                id: expect.any(String),
+                name: "Jane",
+                address: {
+                    street: "456 Main St",
+                    city: "Springfield",
+                    number: 456,
+                    zip: "62702"
+                }
+            }
+        ])
     })
 })
