@@ -4,6 +4,7 @@ import EnviaConsoleLogHandler from "../event/handler/EnviaConsoleLogHandler.hand
 import EventDispatcher from "../../@shared/event/event-dispatcher"
 import Entity from "../../@shared/entity/entity.abstract"
 import NotificationError from "../../@shared/notification/notification.error"
+import CustomerValidatorFactory from "../factory/customer.validator.factory"
 
 export default class Customer extends Entity {
     private _name: string = ""
@@ -15,7 +16,7 @@ export default class Customer extends Entity {
         super()
         this._id = id
         this._name = name
-        this.validate()
+        CustomerValidatorFactory.create().validate(this)
         if (this.notification.hasErrors()) {
             throw new NotificationError(this.notification.getErrors())
         }
@@ -29,18 +30,9 @@ export default class Customer extends Entity {
         return this._rewardPoints
     }
 
-    validate() {
-        if (this.id.length === 0) {
-            this.notification.addError({ context: "Customer", message: "Id is required" })
-        }
-        if (this._name.length === 0) {
-            this.notification.addError({ context: "Customer", message: "Name is required" })
-        }
-    }
-
     changeName(name: string) {
         this._name = name
-        this.validate()
+        CustomerValidatorFactory.create().validate(this)
     }
 
     get Address(): Address {
