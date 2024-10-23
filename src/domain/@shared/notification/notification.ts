@@ -19,4 +19,8 @@ export default class Notification {
         })
         return messages
     }
+
+    hasErrors(): boolean {
+        return this.errors.length > 0
+    }
 }

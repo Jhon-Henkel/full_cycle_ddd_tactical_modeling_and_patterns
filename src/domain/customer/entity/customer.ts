@@ -2,22 +2,22 @@ import Address from "../value-object/address"
 import CustomerAddressChangedEvent from "../event/customer-address-changed.event"
 import EnviaConsoleLogHandler from "../event/handler/EnviaConsoleLogHandler.handler"
 import EventDispatcher from "../../@shared/event/event-dispatcher"
+import Entity from "../../@shared/entity/entity.abstract"
 
-export default class Customer {
-    private _id: string
+export default class Customer extends Entity {
     private _name: string = ""
     private _address!: Address
     private _active: boolean = false
     private _rewardPoints: number = 0
 
     constructor(id: string, name: string) {
-        this._id = id
+        super()
+        this.id = id
         this._name = name
         this.validate()
-    }
-
-    get id(): string {
-        return this._id
+        if (this.notification.hasErrors()) {
+            throw new Error(this.notification.messages())
+        }
     }
 
     get name(): string {
@@ -29,11 +29,11 @@ export default class Customer {
     }
 
     validate() {
-        if (this._id.length === 0) {
-            throw new Error("Id is required")
+        if (this.id.length === 0) {
+            this.notification.addError({ context: "Customer", message: "Id is required" })
         }
         if (this._name.length === 0) {
-            throw new Error("Name is required")
+            this.notification.addError({ context: "Customer", message: "Name is required" })
         }
     }
 
